@@ -2,6 +2,7 @@
 Author: Justin Myhshrall
 Date: 3/4/2024
 """
+import matplotlib.pyplot as plt
 
 class PollutantPercentageCalculator:
     
@@ -93,7 +94,30 @@ class PollutantPercentageCalculator:
             values = "\t".join([str(year)] + list(year_data.values()))
             # print the string representing the pollutant percentages for the current year
             print(values)
-
+        
+    def get_pollutant_percentage_data(self):
+        """
+        Returns the pollutant percentages for each year.
+        """
+        return self.percentage
+    
+    def plot_pollutant_percentage_bar_graphs(self):
+        """
+        Generates bar graphs for each pollutant showing its percentage over the years.
+        """
+        years = list(self.percentage.keys())
+        pollutants = list(self.percentage[years[0]].keys())
+        
+        for pollutant in pollutants:
+            values = [float(self.percentage[year][pollutant].strip('%')) for year in years]
+            plt.figure(figsize=(10, 6))
+            plt.bar(years, values, color='skyblue')
+            plt.xlabel('Year')
+            plt.ylabel('Pollutant Percentage')
+            plt.title(f'{pollutant} Percentage Over Years')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            plt.show()
 
 class AQITrendsAnalyzer:
     """
@@ -192,18 +216,38 @@ class AQITrendsAnalyzer:
             print(f"{state}: {avg_aqi:.2f}")
             # print the state name and its corresponding average AQI, formatted to two decimal places
 
+    def get_state_data(self):
+        """
+        Returns the AQI data for each state.
+        """
+        return self.state_data
 
+def plot_aqi_trends(data):
+    """
+    Plots the AQI trends for each state.
+    """
+    for state, state_data in data.items():
+        years = state_data['years']
+        aqi_values = state_data['aqi_values']
+        plt.plot(years, aqi_values, label=state)
+
+    plt.xlabel('Year')
+    plt.ylabel('AQI')
+    plt.title('AQI Trends by State')
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     
     calculator = PollutantPercentageCalculator('dataset.csv')
     calculator.read_data()
     calculator.calculate_pollutant_percentages()
-    calculator.print_pollutant_percentages()
+    calculator.plot_pollutant_percentage_bar_graphs()
     
     analyzer = AQITrendsAnalyzer('dataset.csv')
     analyzer.read_data()
     analyzer.separate_data_by_states()
     analyzer.sort_states_alphabetically()
-    analyzer.print_trends()
+    aqi_data = analyzer.get_state_data()
+    plot_aqi_trends(aqi_data)
     analyzer.print_average_aqi()
